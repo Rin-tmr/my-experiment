@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心理学実験室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 基本的な背景色とフォントの設定 */
+        body {
+            background-color: #f3f4f6; /* 薄いグレー */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+        }
+
+        /* 中央のコンテンツカード */
+        .container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* タイトルのスタイル */
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 2rem;
+        }
+
+        /* ボタンのスタイル */
+        .start-button {
+            background-color: #3b82f6; /* 青色 */
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* ホバー時の挙動 */
+        .start-button:hover {
+            background-color: #2563eb;
+        }
+
+        /* クリック時の挙動 */
+        .start-button:active {
+            transform: scale(0.95);
+        }
+
+        /* カスタムアラート（モーダル）のスタイル */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            width: 300px;
+        }
+
+        .modal-button {
+            margin-top: 1rem;
+            background-color: #4b5563;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>心理学実験室へようこそ</h1>
+        <button id="startBtn" class="start-button">
+            実験を開始する
+        </button>
+    </div>
+
+    <!-- アラートの代わりとなるカスタムモーダル -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modalMessage" class="text-xl font-medium text-gray-800 mb-4"></p>
+            <button id="closeBtn" class="modal-button">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM要素の取得
+        const startBtn = document.getElementById('startBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeBtn = document.getElementById('closeBtn');
+
+        // ボタンクリック時のイベント
+        startBtn.addEventListener('click', () => {
+            // ブラウザ標準の alert() は動作環境によって制限される場合があるため、
+            // UIとしてメッセージを表示します。
+            showCustomAlert('Hello World!');
+        });
+
+        // モーダルを閉じるイベント
+        closeBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+        });
+
+        // カスタムアラートの表示関数
+        function showCustomAlert(message) {
+            modalMessage.textContent = message;
+            modalOverlay.style.display = 'flex';
+        }
+
+        // 背景クリックでも閉じられるように設定
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
