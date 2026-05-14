@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Stroop Task</title>
+    <!-- jsPsych 7.3 CDN -->
+    <script src="https://unpkg.com/jspsych@7.3.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.0"></script>
+    <link href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            background-color: #FFFFFF;
+            color: #000000;
+            font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .stimulus-text {
+            font-size: 60px;
+            font-weight: bold;
+        }
+        .instruction-text {
+            font-size: 24px;
+            line-height: 1.6;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const jsPsych = initJsPsych({
+            on_finish: function() {
+                jsPsych.data.displayData('csv');
+            }
+        });
+
+        let timeline = [];
+
+        // 1. 開始ボタン (Gemini上でのエラー回避のためフルスクリーン関数を空にしています)
+        const start_screen = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: `
+                <div class="instruction-text">
+                    ストループ課題を開始します。<br>
+                    準備ができたら下のボタンを押してください。
+                </div>
+            `,
+            choices: ['実験を開始する'],
+            on_finish: function() {
+                // 通常のブラウザ環境では以下でフルスクリーンになります
+                // jsPsych.pluginAPI.requestFullscreen(); 
+            }
+        };
+        timeline.push(start_screen);
+
+        // 2. 教示画面
+        const instructions = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: `
+                <div class="instruction-text">
+                    文字の「色」をキーボードで答えてください。<br><br>
+                    <span style="color:red;">赤色</span>なら 'r'<br>
+                    <span style="color:blue;">青色</span>なら 'b'<br>
+                    <span style="color:green;">緑色</span>なら 'g'<br><br>
+                    スペースキーで開始します。
+                </div>
+            `,
+            choices: [' ']
+        };
+        timeline.push(instructions);
+
+        // 3. 要因計画
+        const stimuli = [
+            { word: "赤", color: "red", correct_key: "r", type: "congruent" },
+            { word: "青", color: "blue", correct_key: "b", type: "congruent" },
+            { word: "緑", color: "green", correct_key: "g", type: "congruent" },
+            { word: "赤", color: "blue", correct_key: "b", type: "incongruent" },
+            { word: "赤", color: "green", correct_key: "g", type: "incongruent" },
+            { word: "青", color: "red", correct_key: "r", type: "incongruent" },
+            { word: "青", color: "green", correct_key: "g", type: "incongruent" },
+            { word: "緑", color: "red", correct_key: "r", type: "incongruent" },
+            { word: "緑", color: "blue", correct_key: "b", type: "incongruent" }
+        ];
+
+        // 4. 注視点
+        const fixation = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: '<div style="font-size: 60px;">+</div>',
+            choices: "NO_KEYS",
+            trial_duration: 500
+        };
+
+        // 5. メイン試行
+        const test_trial = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: function() {
+                return `<div class="stimulus-text" style="color: ${jsPsych.timelineVariable('color')};">
+                            ${jsPsych.timelineVariable('word')}
+                        </div>`;
+            },
+            choices: ['r', 'b', 'g'],
+            data: {
+                task: 'response',
+                correct_key: jsPsych.timelineVariable('correct_key'),
+                type: jsPsych.timelineVariable('type')
+            },
+            on_finish: function(data) {
+                data.correct = jsPsych.pluginAPI.compareKeys(data.response, data.correct_key);
+            }
+        };
+
+        // 6. 試行手続き (sample: { size: 10 } で10回に制限)
+        const trial_procedure = {
+            timeline: [fixation, test_trial],
+            timeline_variables: stimuli,
+            post_trial_gap: 1000,
+            sample: { size: 10 }
+        };
+        timeline.push(trial_procedure);
+
+        // 実験開始
+        jsPsych.run(timeline);
+    </script>
+</body>
+</html>
