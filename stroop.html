@@ -1,19 +1,18 @@
-<!DOCTYPE html>
-<html>
+
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Stroop Task</title>
-    <!-- jsPsych 7.3 CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stroop Task - Random 10 trials</title>
     <script src="https://unpkg.com/jspsych@7.3.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.0"></script>
     <link href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css" rel="stylesheet" type="text/css" />
     <style>
         body {
-            background-color: #FFFFFF;
-            color: #000000;
-            font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-family: 'Inter', "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,13 +21,38 @@
             margin: 0;
         }
         .stimulus-text {
-            font-size: 60px;
-            font-weight: bold;
+            font-size: 72px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .instruction-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            max-width: 600px;
+            text-align: center;
         }
         .instruction-text {
-            font-size: 24px;
-            line-height: 1.6;
-            text-align: center;
+            font-size: 20px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .key-hint {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .results-table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .results-table td {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
@@ -36,26 +60,26 @@
     <script>
         const jsPsych = initJsPsych({
             on_finish: function() {
-                jsPsych.data.displayData('csv');
+                // 実験終了時にデータを表示（デバッグ用）
+                // jsPsych.data.displayData();
             }
         });
 
         let timeline = [];
 
-        // 1. 開始ボタン (Gemini上でのエラー回避のためフルスクリーン関数を空にしています)
+        // 1. 開始ボタン画面
         const start_screen = {
             type: jsPsychHtmlButtonResponse,
             stimulus: `
-                <div class="instruction-text">
-                    ストループ課題を開始します。<br>
-                    準備ができたら下のボタンを押してください。
+                <div class="instruction-box">
+                    <h2 style="margin-top:0;">ストループ課題</h2>
+                    <p class="instruction-text">
+                        これから合計10回のテストを行います。<br>
+                        準備ができたら下のボタンを押してください。
+                    </p>
                 </div>
             `,
-            choices: ['実験を開始する'],
-            on_finish: function() {
-                // 通常のブラウザ環境では以下でフルスクリーンになります
-                // jsPsych.pluginAPI.requestFullscreen(); 
-            }
+            choices: ['実験を開始する']
         };
         timeline.push(start_screen);
 
@@ -63,19 +87,20 @@
         const instructions = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: `
-                <div class="instruction-text">
-                    文字の「色」をキーボードで答えてください。<br><br>
-                    <span style="color:red;">赤色</span>なら 'r'<br>
-                    <span style="color:blue;">青色</span>なら 'b'<br>
-                    <span style="color:green;">緑色</span>なら 'g'<br><br>
-                    スペースキーで開始します。
+                <div class="instruction-box">
+                    <p class="instruction-text">
+                        表示される文字の<strong>「色」</strong>を答えてください。<br><br>
+                        <span style="color:red; font-weight:bold;">赤色</span>なら <span class="key-hint">R</span> キー<br>
+                        <span style="color:blue; font-weight:bold;">青色</span>なら <span class="key-hint">B</span> キー<br>
+                        <span style="color:green; font-weight:bold;">緑色</span>なら <span class="key-hint">G</span> キー<br><br>
+                        <strong>スペースキー</strong>を押すと開始します。
+                    </p>
                 </div>
             `,
             choices: [' ']
         };
         timeline.push(instructions);
 
-        // 3. 要因計画
         const stimuli = [
             { word: "赤", color: "red", correct_key: "r", type: "congruent" },
             { word: "青", color: "blue", correct_key: "b", type: "congruent" },
@@ -91,7 +116,7 @@
         // 4. 注視点
         const fixation = {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: '<div style="font-size: 60px;">+</div>',
+            stimulus: '<div style="font-size: 60px; color: #94a3b8;">+</div>',
             choices: "NO_KEYS",
             trial_duration: 500
         };
@@ -108,21 +133,51 @@
             data: {
                 task: 'response',
                 correct_key: jsPsych.timelineVariable('correct_key'),
-                type: jsPsych.timelineVariable('type')
+                condition: jsPsych.timelineVariable('type')
             },
             on_finish: function(data) {
+                // 正誤判定
                 data.correct = jsPsych.pluginAPI.compareKeys(data.response, data.correct_key);
             }
         };
 
-        // 6. 試行手続き (sample: { size: 10 } で10回に制限)
+        // 6. 試行手続き: ここで10回ランダムに抽出する設定を行います
         const trial_procedure = {
             timeline: [fixation, test_trial],
             timeline_variables: stimuli,
-            post_trial_gap: 1000,
-            sample: { size: 10 }
+            randomize_order: true,
+            sample: {
+                type: 'with-replacement', // 復元抽出（同じ刺激が再度選ばれることを許容）
+                size: 10                  // 合計10回
+            },
+            post_trial_gap: 800
         };
         timeline.push(trial_procedure);
+
+        // 7. 結果表示画面
+        const feedback_screen = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: function() {
+                const trials = jsPsych.data.get().filter({task: 'response'});
+                const correct_trials = trials.filter({correct: true});
+                const accuracy = Math.round(correct_trials.count() / trials.count() * 100);
+                const rt = Math.round(correct_trials.select('rt').mean());
+
+                return `
+                    <div class="instruction-box">
+                        <h2>お疲れ様でした！</h2>
+                        <table class="results-table" style="width:100%">
+                            <tr><td>試行数</td><td>${trials.count()} 回</td></tr>
+                            <tr><td>正解率</td><td>${accuracy} %</td></tr>
+                            <tr><td>平均反応時間(正解のみ)</td><td>${rt ? rt : 0} ms</td></tr>
+                        </table>
+                        <p>詳細はCSVデータとして出力可能です。</p>
+                    </div>
+                `;
+            },
+            choices: ['データを表示して終了']
+        };
+        timeline.push(feedback_screen);
 
         // 実験開始
         jsPsych.run(timeline);
