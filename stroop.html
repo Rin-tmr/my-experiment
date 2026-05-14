@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -150,32 +150,19 @@
                 type: 'with-replacement', // 復元抽出（同じ刺激が再度選ばれることを許容）
                 size: 10                  // 合計10回
             },
-            post_trial_gap: 800
+            post_trial_gap: 1000
         };
         timeline.push(trial_procedure);
 
         // 7. 結果表示画面
         const feedback_screen = {
             type: jsPsychHtmlButtonResponse,
-            stimulus: function() {
-                const trials = jsPsych.data.get().filter({task: 'response'});
-                const correct_trials = trials.filter({correct: true});
-                const accuracy = Math.round(correct_trials.count() / trials.count() * 100);
-                const rt = Math.round(correct_trials.select('rt').mean());
-
-                return `
-                    <div class="instruction-box">
-                        <h2>お疲れ様でした！</h2>
-                        <table class="results-table" style="width:100%">
-                            <tr><td>試行数</td><td>${trials.count()} 回</td></tr>
-                            <tr><td>正解率</td><td>${accuracy} %</td></tr>
-                            <tr><td>平均反応時間(正解のみ)</td><td>${rt ? rt : 0} ms</td></tr>
-                        </table>
-                        <p>詳細はCSVデータとして出力可能です。</p>
-                    </div>
-                `;
-            },
-            choices: ['データを表示して終了']
+            stimulus: `
+                <div class="instruction-box">
+                    <h2>お疲れ様でした！</h2>
+                </div>
+            `,
+            choices: ['終了する']
         };
         timeline.push(feedback_screen);
 
