@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ミュラー・リヤー錯視実験</title>
+    <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-canvas-keyboard-response@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.3"></script>
+    <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css">
+    <style>
+        body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f0f0f0; }
+        .jspsych-display-element { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .guide-text { font-size: 1.1em; color: #333; margin-top: 10px; text-align: center; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <script>
+        const jsPsych = initJsPsych({
+            on_finish: function() {
+                // 送信中の表示
+                document.body.innerHTML = '<div style="text-align:center;"><h1>送信中...</h1></div>';
+
+                // データのフィルタリングと抽出
+                const data = jsPsych.data.get().filter({trial_type: 'canvas-keyboard-response'}).values();
+                const processedData = data.map(d => ({
+                    subject_id: d.subject_id,
+                    timestamp: d.timestamp,
+                    angle: d.angle,
+                    wing_length: d.wing_length,
+                    standard_len: d.standard_len,
+                    pse: d.pse,
+                    error_amount: d.pse - 200
+                }));
+
+                // データ送信
+                fetch('https://script.google.com/macros/s/AKfycbymWDB25vcwm2Pc9NMnS_AbKyC6px7MdQ3TQH5ofhkMECo77K1_FoYGV4UhG_woeCoEYQ/exec', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(processedData)
+                }).then(() => {
+                    document.body.innerHTML = '<div style="text-align:center;"><h1>実験終了</h1><p>データが送信されました。</p></div>';
+                }).catch(() => {
+                    document.body.innerHTML = '<div style="text-align:center;"><h1>エラー</h1><p>送信に失敗しました。</p></div>';
+                });
+            }
+        });
+
+        const trial_count = 12;
+        const base_line_width = 200;
+        const conditions = [
+            { angle: 15, fin_length: 20 }, { angle: 15, fin_length: 50 },
+            { angle: 75, fin_length: 20 }, { angle: 75, fin_length: 50 }
+        ];
+
+        let temp_trials = [];
+        for (let i = 0; i < 3; i++) {
+            conditions.forEach(cond => {
+                temp_trials.push({ ...cond });
+            });
+        }
+        const trials = jsPsych.randomization.shuffle(temp_trials);
+
+        function drawStimuli(canvas, variable_length, angle, fin_length) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const midX = canvas.width / 2;
+            const y1 = 150;
+            const y2 = 350;
+            const rad = (angle * Math.PI) / 180;
+
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(midX - base_line_width / 2, y1);
+            ctx.lineTo(midX + base_line_width / 2, y1);
+            ctx.moveTo(midX - base_line_width / 2, y1);
+            ctx.lineTo(midX - base_line_width / 2 + fin_length * Math.cos(rad), y1 - fin_length * Math.sin(rad));
+            ctx.moveTo(midX - base_line_width / 2, y1);
+            ctx.lineTo(midX - base_line_width / 2 + fin_length * Math.cos(rad), y1 + fin_length * Math.sin(rad));
+            ctx.moveTo(midX + base_line_width / 2, y1);
+            ctx.lineTo(midX + base_line_width / 2 - fin_length * Math.cos(rad), y1 - fin_length * Math.sin(rad));
+            ctx.moveTo(midX + base_line_width / 2, y1);
+            ctx.lineTo(midX + base_line_width / 2 - fin_length * Math.cos(rad), y1 + fin_length * Math.sin(rad));
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(midX - variable_length / 2, y2);
+            ctx.lineTo(midX + variable_length / 2, y2);
+            ctx.moveTo(midX - variable_length / 2, y2);
+            ctx.lineTo(midX - variable_length / 2 - fin_length * Math.cos(rad), y2 - fin_length * Math.sin(rad));
+            ctx.moveTo(midX - variable_length / 2, y2);
+            ctx.lineTo(midX - variable_length / 2 - fin_length * Math.cos(rad), y2 + fin_length * Math.sin(rad));
+            ctx.moveTo(midX + variable_length / 2, y2);
+            ctx.lineTo(midX + variable_length / 2 + fin_length * Math.cos(rad), y2 - fin_length * Math.sin(rad));
+            ctx.moveTo(midX + variable_length / 2, y2);
+            ctx.lineTo(midX + variable_length / 2 + fin_length * Math.cos(rad), y2 + fin_length * Math.sin(rad));
+            ctx.stroke();
+        }
+
+        const timeline = [];
+
+        // 1. 参加者ID入力画面
+        timeline.push({
+            type: jsPsychSurveyText,
+            questions: [{ prompt: "参加者IDを入力してください", name: 'subject_id', required: true }]
+        });
+
+        // 2. 教示画面
+        timeline.push({
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "<h1>ミュラー・リヤー錯視実験</h1><p>矢印キー（左右）で下の線の長さを調整してください。<br>長さが等しいと感じたらスペースキーを押してください。</p><p>開始するには何かキーを押してください。</p>"
+        });
+
+        // 3. 試行ループ
+        trials.forEach((trial_data, index) => {
+            let current_len = Math.floor(Math.random() * 200) + 100;
+
+            timeline.push({
+                type: jsPsychCanvasKeyboardResponse,
+                canvas_size: [500, 800],
+                stimulus: (c) => drawStimuli(c, current_len, trial_data.angle, trial_data.fin_length),
+                prompt: `
+                    <p>試行 ${index + 1} / ${trial_count}</p>
+                    <div class="guide-text">
+                        左矢印: 短く / 右矢印: 長く<br>
+                        スペースキー: 次の試行へ
+                    </div>`,
+                choices: [' '],
+                on_load: function() {
+                    let keys = { 'ArrowLeft': false, 'ArrowRight': false };
+                    let animationId = null;
+                    const canvas = document.querySelector('canvas');
+                    
+                    const renderLoop = () => {
+                        if (keys['ArrowLeft']) current_len = Math.max(50, current_len - 2);
+                        if (keys['ArrowRight']) current_len = Math.min(450, current_len + 2);
+                        
+                        drawStimuli(canvas, current_len, trial_data.angle, trial_data.fin_length);
+                        animationId = requestAnimationFrame(renderLoop);
+                    };
+
+                    window.addEventListener('keydown', (e) => {
+                        if (e.code in keys) {
+                            keys[e.code] = true;
+                            if (!animationId) renderLoop();
+                        }
+                    });
+                    window.addEventListener('keyup', (e) => {
+                        if (e.code in keys) keys[e.code] = false;
+                        if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
+                            cancelAnimationFrame(animationId);
+                            animationId = null;
+                        }
+                    });
+                },
+                data: { 
+                    subject_id: () => jsPsych.data.get().filter({trial_type: 'survey-text'}).values()[0].response.subject_id,
+                    timestamp: new Date().toISOString(),
+                    angle: trial_data.angle,
+                    wing_length: trial_data.fin_length,
+                    standard_len: 200
+                },
+                on_finish: function(data) {
+                    data.pse = current_len;
+                }
+            });
+        });
+
+        jsPsych.run(timeline);
+    </script>
+</body>
+</html>
