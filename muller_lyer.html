@@ -18,10 +18,9 @@
     <script>
         const jsPsych = initJsPsych({
             on_finish: function() {
-                // 送信中の表示
-                document.body.innerHTML = '<div style="text-align:center;"><h1>送信中...</h1></div>';
+                // 送信中の画面表示
+                document.body.innerHTML = '<div style="text-align:center;"><h1>送信中...</h1><p>データを送信しています。</p></div>';
 
-                // データのフィルタリングと抽出
                 const data = jsPsych.data.get().filter({trial_type: 'canvas-keyboard-response'}).values();
                 const processedData = data.map(d => ({
                     subject_id: d.subject_id,
@@ -33,7 +32,6 @@
                     error_amount: d.pse - 200
                 }));
 
-                // データ送信
                 fetch('https://script.google.com/macros/s/AKfycbymWDB25vcwm2Pc9NMnS_AbKyC6px7MdQ3TQH5ofhkMECo77K1_FoYGV4UhG_woeCoEYQ/exec', {
                     method: 'POST',
                     mode: 'no-cors',
@@ -57,9 +55,7 @@
 
         let temp_trials = [];
         for (let i = 0; i < 3; i++) {
-            conditions.forEach(cond => {
-                temp_trials.push({ ...cond });
-            });
+            conditions.forEach(cond => temp_trials.push({ ...cond }));
         }
         const trials = jsPsych.randomization.shuffle(temp_trials);
 
@@ -101,70 +97,52 @@
 
         const timeline = [];
 
-        // 1. 参加者ID入力画面
         timeline.push({
             type: jsPsychSurveyText,
-            questions: [{ prompt: "参加者IDを入力してください", name: 'subject_id', required: true }]
+            questions: [{ prompt: "参加者IDを入力してください", name: 'subject_id', required: true }],
+            on_finish: function(data) {
+                jsPsych.data.addProperties({ subject_id: data.response.subject_id });
+            }
         });
 
-        // 2. 教示画面
         timeline.push({
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: "<h1>ミュラー・リヤー錯視実験</h1><p>矢印キー（左右）で下の線の長さを調整してください。<br>長さが等しいと感じたらスペースキーを押してください。</p><p>開始するには何かキーを押してください。</p>"
+            stimulus: "<h1>ミュラー・リヤー錯視実験</h1><p>矢印キーで調整し、スペースキーで次へ。</p><p>開始するには何かキーを押してください。</p>"
         });
 
-        // 3. 試行ループ
         trials.forEach((trial_data, index) => {
             let current_len = Math.floor(Math.random() * 200) + 100;
-
             timeline.push({
                 type: jsPsychCanvasKeyboardResponse,
                 canvas_size: [500, 800],
                 stimulus: (c) => drawStimuli(c, current_len, trial_data.angle, trial_data.fin_length),
-                prompt: `
-                    <p>試行 ${index + 1} / ${trial_count}</p>
-                    <div class="guide-text">
-                        左矢印: 短く / 右矢印: 長く<br>
-                        スペースキー: 次の試行へ
-                    </div>`,
+                prompt: `<p>試行 ${index + 1} / ${trial_count}</p><div class="guide-text">←：短く / 長く：→<br>スペースキー: 次の試行へ</div>`,
                 choices: [' '],
                 on_load: function() {
                     let keys = { 'ArrowLeft': false, 'ArrowRight': false };
                     let animationId = null;
                     const canvas = document.querySelector('canvas');
-                    
                     const renderLoop = () => {
                         if (keys['ArrowLeft']) current_len = Math.max(50, current_len - 2);
                         if (keys['ArrowRight']) current_len = Math.min(450, current_len + 2);
-                        
                         drawStimuli(canvas, current_len, trial_data.angle, trial_data.fin_length);
                         animationId = requestAnimationFrame(renderLoop);
                     };
-
                     window.addEventListener('keydown', (e) => {
-                        if (e.code in keys) {
-                            keys[e.code] = true;
-                            if (!animationId) renderLoop();
-                        }
+                        if (e.code in keys) { keys[e.code] = true; if (!animationId) renderLoop(); }
                     });
                     window.addEventListener('keyup', (e) => {
                         if (e.code in keys) keys[e.code] = false;
-                        if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
-                            cancelAnimationFrame(animationId);
-                            animationId = null;
-                        }
+                        if (!keys['ArrowLeft'] && !keys['ArrowRight']) { cancelAnimationFrame(animationId); animationId = null; }
                     });
                 },
                 data: { 
-                    subject_id: () => jsPsych.data.get().filter({trial_type: 'survey-text'}).values()[0].response.subject_id,
                     timestamp: new Date().toISOString(),
                     angle: trial_data.angle,
                     wing_length: trial_data.fin_length,
                     standard_len: 200
                 },
-                on_finish: function(data) {
-                    data.pse = current_len;
-                }
+                on_finish: function(data) { data.pse = current_len; }
             });
         });
 
