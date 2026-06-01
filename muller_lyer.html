@@ -16,9 +16,13 @@
 </head>
 <body>
     <script>
+        // 日本時間を取得するヘルパー関数
+        function getJSTTimestamp() {
+            return new Date().toLocaleString("ja-JP", {timeZone: "Asia/Tokyo"});
+        }
+
         const jsPsych = initJsPsych({
             on_finish: function() {
-                // 送信中の画面表示
                 document.body.innerHTML = '<div style="text-align:center;"><h1>送信中...</h1><p>データを送信しています。</p></div>';
 
                 const data = jsPsych.data.get().filter({trial_type: 'canvas-keyboard-response'}).values();
@@ -137,7 +141,7 @@
                     });
                 },
                 data: { 
-                    timestamp: new Date().toISOString(),
+                    timestamp: getJSTTimestamp(),
                     angle: trial_data.angle,
                     wing_length: trial_data.fin_length,
                     standard_len: 200
