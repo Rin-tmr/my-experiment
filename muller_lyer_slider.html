@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ミュラー・リヤー錯視実験</title>
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-canvas-slider-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f0f0f0; }
+        .jspsych-display-element { width: 100%; max-width: 800px; }
+    </style>
+</head>
+<body>
+    <script>
+        const jsPsych = initJsPsych();
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwO68vgTCoC7nRY4PACmLD4FJrE-GF79e77EDGcVl8-n5fhx_2_02IqJkU0EHjq2R9T/exec';
+        let subject_id = "";
+
+        // 刺激描画ロジック
+        function renderCanvas(c_element, c_val, condition) {
+            if (!c_element) return;
+            const ctx = c_element.getContext('2d');
+            ctx.clearRect(0, 0, c_element.width, c_element.height);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "black";
+            const rad = condition.angle * Math.PI / 180;
+            const centerX = 300;
+
+            const drawMuller = (y, lineLen, isStandard) => {
+                const halfLen = lineLen / 2;
+                const leftX = centerX - halfLen;
+                const rightX = centerX + halfLen;
+                ctx.beginPath(); ctx.moveTo(leftX, y); ctx.lineTo(rightX, y); ctx.stroke();
+                const dir = isStandard ? 1 : -1;
+                const dx = condition.wingLen * Math.cos(rad);
+                const dy = condition.wingLen * Math.sin(rad);
+                ctx.beginPath(); ctx.moveTo(leftX, y); ctx.lineTo(leftX + (dx * dir), y - dy);
+                ctx.moveTo(leftX, y); ctx.lineTo(leftX + (dx * dir), y + dy); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(rightX, y); ctx.lineTo(rightX - (dx * dir), y - dy);
+                ctx.moveTo(rightX, y); ctx.lineTo(rightX - (dx * dir), y + dy); ctx.stroke();
+            };
+            drawMuller(100, 200, true);
+            drawMuller(300, parseFloat(c_val), false);
+        }
+
+        // 送信用の独立した試行
+        const sendDataTrial = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "データを送信しています...少々お待ちください。",
+            choices: [],
+            on_load: async () => {
+                const results = jsPsych.data.get().filter({trial_type: 'canvas-slider-response'}).values();
+                try {
+                    await fetch(GAS_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(results)
+                    });
+                } catch (e) {
+                    console.error("送信エラー:", e);
+                }
+                jsPsych.finishTrial();
+            }
+        };
+
+        const finishMessage = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "送信が完了しました。ご協力ありがとうございました。",
+            choices: ['終了する']
+        };
+
+        const conditions = []; const angles = [15, 75]; const wingLengths = [20, 50];
+        for (let angle of angles) { for (let wingLen of wingLengths) { for (let i = 0; i < 3; i++) { conditions.push({ angle: angle, wingLen: wingLen }); } } }
+        const trials = jsPsych.randomization.shuffle(conditions);
+
+        const welcome = { type: jsPsychHtmlButtonResponse, stimulus: "ミュラー・リヤー錯視実験へようこそ。<br>スライダーを動かして、下の刺激を上の刺激と同じ長さに合わせてください。", choices: ['実験を開始する'] };
+        const enterId = { type: jsPsychSurveyText, questions: [{ prompt: "参加者IDを入力してください", name: 'subject_id', required: true }], on_finish: (data) => { subject_id = data.response.subject_id; } };
+
+        const experimentTrials = trials.map((c, index) => ({
+            type: jsPsychCanvasSliderResponse,
+            canvas_size: [400, 600],
+            stimulus: (c_element) => {},
+            slider_width: 400, min: 50, max: 350, step: 1, slider_start: 200,
+            prompt: `<p>Trial ${index + 1} / ${trials.length}</p>`,
+            data: { angle: c.angle, wing_length: c.wingLen },
+            on_load: () => {
+                const c_element = document.querySelector('canvas');
+                const slider = document.querySelector('input[type=range]');
+                if (c_element && slider) {
+                    renderCanvas(c_element, slider.value, c);
+                    slider.addEventListener('input', (e) => { renderCanvas(c_element, e.target.value, c); });
+                }
+            },
+            on_finish: (data) => {
+                data.subject_id = subject_id;
+                const now = new Date(); const jstDate = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+                data.timestamp = jstDate.toISOString().replace('T', ' ').substring(0, 19);
+                data.pse = data.response;
+                data.error_amount = data.response - 200;
+            }
+        }));
+
+        jsPsych.run([welcome, enterId, ...experimentTrials, sendDataTrial, finishMessage]);
+    </script>
+</body>
+</html>
