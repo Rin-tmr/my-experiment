@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,6 +10,7 @@
     <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
     <style>
+        /* 画面全体のFlex設定 */
         body { 
             display: flex; 
             justify-content: center; 
@@ -17,15 +19,25 @@
             margin: 0; 
             background-color: #f0f0f0; 
         }
-        /* jsPsychのメインコンテナを画面中央かつレスポンシブにするための設定 */
+        
+        /* jsPsychのコンテナを強制的に中央へ */
         .jspsych-display-element { 
+            display: flex !important;
+            flex-direction: column;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 90% !important; 
+            max-width: 800px !important;
+            margin: 0 auto !important;
+            text-align: center !important;
+        }
+
+        /* 各コンテンツの配置を中央へ */
+        .jspsych-content {
+            margin: 0 auto !important;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            width: 95%; 
-            max-width: 800px;
-            margin: 0 auto;
         }
     </style>
 </head>
