@@ -9,8 +9,24 @@
     <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
     <style>
-        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f0f0f0; }
-        .jspsych-display-element { width: 100%; max-width: 800px; }
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background-color: #f0f0f0; 
+        }
+        /* jsPsychのメインコンテナを画面中央かつレスポンシブにするための設定 */
+        .jspsych-display-element { 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 95%; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
