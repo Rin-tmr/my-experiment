@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ミュラー・リヤー錯視実験</title>
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-canvas-slider-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <style>
+        body { 
+            margin: 0;
+            background-color: #f8f9fa;
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .jspsych-display-element { 
+            display: flex !important;
+            flex-direction: column;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            min-height: 100vh;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .jspsych-content {
+            width: 100% !important;
+            max-width: 500px !important;
+            line-height: 1.5;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .jspsych-btn {
+            padding: 12px 24px !important;
+            font-size: 1rem !important;
+            border-radius: 30px !important;
+            background-color: #007bff !important;
+            color: white !important;
+            border: none !important;
+            margin-top: 15px !important;
+            display: inline-block;
+        }
+
+        .trial-counter {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+            margin: 10px 0;
+        }
+
+        input[type=range] {
+            width: 90% !important;
+            max-width: 350px !important;
+            margin: 15px 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const jsPsych = initJsPsych();
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwO68vgTCoC7nRY4PACmLD4FJrE-GF79e77EDGcVl8-n5fhx_2_02IqJkU0EHjq2R9T/exec';
+        let subject_id = "";
+
+        function renderCanvas(c_element, c_val, condition) {
+            if (!c_element) return;
+            const ctx = c_element.getContext('2d');
+            ctx.clearRect(0, 0, c_element.width, c_element.height);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "black";
+            const rad = condition.angle * Math.PI / 180;
+            const centerX = c_element.width / 2;
+
+            const drawMuller = (y, lineLen, isStandard) => {
+                const halfLen = lineLen / 2;
+                const leftX_pos = centerX - halfLen;
+                const rightX_pos = centerX + halfLen;
+                
+                ctx.beginPath(); ctx.moveTo(leftX_pos, y); ctx.lineTo(rightX_pos, y); ctx.stroke();
+                
+                const dir = isStandard ? 1 : -1;
+                const dx = condition.wingLen * Math.cos(rad);
+                const dy = condition.wingLen * Math.sin(rad);
+                
+                ctx.beginPath(); 
+                ctx.moveTo(leftX_pos, y); ctx.lineTo(leftX_pos + (dx * dir), y - dy);
+                ctx.moveTo(leftX_pos, y); ctx.lineTo(leftX_pos + (dx * dir), y + dy); 
+                ctx.stroke();
+                
+                ctx.beginPath(); 
+                ctx.moveTo(rightX_pos, y); ctx.lineTo(rightX_pos - (dx * dir), y - dy);
+                ctx.moveTo(rightX_pos, y); ctx.lineTo(rightX_pos - (dx * dir), y + dy); 
+                ctx.stroke();
+            };
+            drawMuller(120, 200, true);
+            drawMuller(280, parseFloat(c_val), false);
+        }
+
+        const sendDataTrial = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "<p>データを送信しています。<br>しばらくお待ちください。</p>",
+            choices: [],
+            on_load: async () => {
+                const results = jsPsych.data.get().filter({trial_type: 'canvas-slider-response'}).values();
+                try {
+                    await fetch(GAS_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(results)
+                    });
+                } catch (e) {
+                    console.error("送信エラー:", e);
+                }
+                jsPsych.finishTrial();
+            }
+        };
+
+        const finishMessage = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "<p>送信が完了しました。<br>ご協力ありがとうございました。</p>",
+            choices: ['終了する']
+        };
+
+        const conditions = []; 
+        const angles = [15, 75]; 
+        const wingLengths = [20, 50];
+        
+        for (let angle of angles) { 
+            for (let wingLen of wingLengths) { 
+                for (let i = 0; i < 3; i++) { 
+                    conditions.push({ angle: angle, wingLen: wingLen }); 
+                } 
+            } 
+        }
+        
+        const trials = jsPsych.randomization.shuffle(conditions);
+
+        const welcome = { 
+            type: jsPsychHtmlButtonResponse, 
+            stimulus: "<h1>視覚テスト</h1><p>ご協力ありがとうございます。<br>これから短い視覚のテストを行います。</p>", 
+            choices: ['次へ'] 
+        };
+
+        const instruction = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "<p>画面に2つの図形が並びます。<br>下の図形はスライダーで長さが変わります。</p><p><b>上の線と同じ長さ</b>に見えるところで、決定ボタンを押してください。</p>",
+            choices: ['実験を開始する']
+        };
+
+        const enterId = { 
+            type: jsPsychSurveyText, 
+            questions: [{ prompt: "お名前か参加者IDを入力してください", name: 'subject_id', required: true }], 
+            on_finish: (data) => { subject_id = data.response.subject_id; } 
+        };
+
+        const experimentTrials = trials.map((c, index) => ({
+            type: jsPsychCanvasSliderResponse,
+            canvas_size: [400, 600],
+            stimulus: (c_element) => {},
+            slider_width: 300, min: 50, max: 350, step: 1, slider_start: (Math.random() < 0.5) ? 300 : 100,
+            prompt: `<div class="trial-counter">現在 ${index + 1} 回目 / 全 ${trials.length} 回</div>`,
+            data: { angle: c.angle, wing_length: c.wingLen },
+            button_label: '決定',
+            on_load: () => {
+                const c_element = document.querySelector('canvas');
+                const slider = document.querySelector('input[type=range]');
+                if (c_element && slider) {
+                    renderCanvas(c_element, slider.value, c);
+                    slider.addEventListener('input', (e) => { renderCanvas(c_element, e.target.value, c); });
+                }
+            },
+            on_finish: (data) => {
+                data.subject_id = subject_id;
+                const now = new Date(); const jstDate = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+                data.timestamp = jstDate.toISOString().replace('T', ' ').substring(0, 19);
+                data.pse = data.response;
+                data.error_amount = data.response - 200;
+            }
+        }));
+
+        jsPsych.run([welcome, instruction, enterId, ...experimentTrials, sendDataTrial, finishMessage]);
+    </script>
+</body>
+</html>
