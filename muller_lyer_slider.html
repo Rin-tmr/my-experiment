@@ -72,15 +72,21 @@
                 // 直線を描画
                 ctx.beginPath(); ctx.moveTo(leftX_pos, y); ctx.lineTo(rightX_pos, y); ctx.stroke();
                 
+                // 修正箇所: 翼の向きを条件に合わせて調整
                 const dir = isStandard ? 1 : -1;
                 const dx = condition.wingLen * Math.cos(rad);
                 const dy = condition.wingLen * Math.sin(rad);
                 
                 // 翼を描画
-                ctx.beginPath(); ctx.moveTo(leftX_pos, y); ctx.lineTo(leftX_pos + (dx * dir), y - dy);
-                ctx.moveTo(leftX_pos, y); ctx.lineTo(leftX_pos + (dx * dir), y + dy); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(rightX_pos, y); ctx.lineTo(rightX_pos - (dx * dir), y - dy);
-                ctx.moveTo(rightX_pos, y); ctx.lineTo(rightX_pos - (dx * dir), y + dy); ctx.stroke();
+                ctx.beginPath(); 
+                ctx.moveTo(leftX_pos, y); ctx.lineTo(leftX_pos + (dx * dir), y - dy);
+                ctx.moveTo(leftX_pos, y); ctx.lineTo(leftX_pos + (dx * dir), y + dy); 
+                ctx.stroke();
+                
+                ctx.beginPath(); 
+                ctx.moveTo(rightX_pos, y); ctx.lineTo(rightX_pos - (dx * dir), y - dy);
+                ctx.moveTo(rightX_pos, y); ctx.lineTo(rightX_pos - (dx * dir), y + dy); 
+                ctx.stroke();
             };
             drawMuller(100, 200, true);
             drawMuller(300, parseFloat(c_val), false);
@@ -135,7 +141,8 @@
             type: jsPsychCanvasSliderResponse,
             canvas_size: [400, 600],
             stimulus: (c_element) => {},
-            slider_width: 400, min: 50, max: 350, step: 1, slider_start: 300,
+            // 修正箇所: 各試行でランダムに100または300から開始
+            slider_width: 400, min: 50, max: 350, step: 1, slider_start: (Math.random() < 0.5) ? 300 : 100,
             prompt: `<p>Trial ${index + 1} / ${trials.length}</p>`,
             data: { angle: c.angle, wing_length: c.wingLen },
             on_load: () => {
@@ -159,4 +166,3 @@
     </script>
 </body>
 </html>
-
