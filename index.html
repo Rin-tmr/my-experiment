@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>尚絅学院大学 田村りん の心理学実験室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #EFE7EC;
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+        }
+        .experiment-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .experiment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-4xl mx-auto px-6 py-12">
+        <!-- ヘッダー -->
+        <header class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-[#D47FAC] drop-shadow-sm mb-4">
+                尚絅学院大学 田村りん の心理学実験室
+            </h1>
+            <div class="bg-white/50 p-6 rounded-2xl shadow-sm inline-block max-w-2xl">
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    ご訪問ありがとうございます。以下の実験へのご協力をお願いいたします。<br>
+                    各実験は数分で終わります。スマートフォンからも参加可能です。
+                </p>
+            </div>
+        </header>
+
+        <!-- 実験リスト -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- 実験0 -->
+            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験0：はじめてのWebページ</h2>
+                    <p class="text-gray-600 mb-6">第2回で作成した記念すべき「Hello World」のページです。</p>
+                </div>
+                <a href="hello_world.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
+                    Hello Worldを見る
+                </a>
+            </article>
+
+            <!-- 実験1 -->
+            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験1：ストループ課題</h2>
+                    <p class="text-gray-600 mb-6">「文字の意味」と「文字の色」の干渉を調べる、簡単なキーボード入力のテストです。（所要時間：約3分）</p>
+                </div>
+                <a href="stroop.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
+                    実験1に参加する
+                </a>
+            </article>
+
+            <!-- 実験2 -->
+            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験2：ミュラー・リヤー錯視</h2>
+                    <p class="text-gray-600 mb-6">図形の長さが違って見える錯覚を測る、スライダーを使った視覚のテストです。（所要時間：約2分）</p>
+                </div>
+                <a href="muller_lyer_final.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
+                    実験2に参加する
+                </a>
+            </article>
+
+        </main>
+
+        <footer class="text-center mt-16 text-sm text-[#D47FAC]/70">
+            &copy; 2026 Rin Tamura, Shokei Gakuin University.
+        </footer>
+    </div>
+
+</body>
+</html>
