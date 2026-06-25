@@ -36,7 +36,7 @@
         </header>
 
         <!-- 実験リスト -->
-        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             <!-- 実験0 -->
             <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
@@ -53,7 +53,7 @@
             <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
                 <div>
                     <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験1：ストループ課題</h2>
-                    <p class="text-gray-600 mb-6">「文字の意味」と「文字の色」の干渉を調べる、簡単なキーボード入力のテストです。（所要時間：約3分）</p>
+                    <p class="text-gray-600 mb-6">「文字の意味」と「文字の色」の干渉を調べるテストです。（所要時間：約3分）</p>
                 </div>
                 <a href="stroop.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
                     実験1に参加する
@@ -64,11 +64,36 @@
             <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
                 <div>
                     <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験2：ミュラー・リヤー錯視</h2>
-                    <p class="text-gray-600 mb-6">図形の長さが違って見える錯覚を測る、スライダーを使った視覚のテストです。（所要時間：約2分）</p>
+                    <p class="text-gray-600 mb-6">図形の長さが違って見える錯覚を測るテストです。（所要時間：約2分）</p>
                 </div>
                 <a href="muller_lyer_final.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
                     実験2に参加する
                 </a>
+            </article>
+
+            <!-- 実験3 -->
+            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験3：N-back課題</h2>
+                    <p class="text-gray-600 mb-4">ワーキングメモリへの記憶負荷がパフォーマンスに与える影響を測るテストです。（所要時間：約3分）</p>
+                </div>
+                
+                <div class="space-y-3 mt-auto">
+                    <!-- メイン参加ボタン -->
+                    <a href="nback.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition shadow-sm">
+                        実験3に参加する
+                    </a>
+                    
+                    <!-- プレレジ関連リンク -->
+                    <div class="flex gap-2">
+                        <a href="https://github.com/Rin-tmr/my-experiment/blob/main/preregistration.md" class="flex-1 border-2 border-[#D47FAC] text-[#D47FAC] hover:bg-[#D47FAC] hover:text-white text-center text-xs font-bold py-2 rounded-lg transition">
+                            プレレジを確認
+                        </a>
+                        <a href="https://github.com/Rin-tmr/my-experiment/commits/main/preregistration.md" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-center text-xs font-bold py-2 rounded-lg transition">
+                            変更履歴
+                        </a>
+                    </div>
+                </div>
             </article>
 
         </main>
