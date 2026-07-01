@@ -7,28 +7,39 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #EFE7EC;
+            /* 紫陽花をイメージした淡いグラデーション背景 */
+            background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 50%, #fce7f3 100%);
+            background-attachment: fixed;
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
         }
+        /* 磨きガラス効果のための共通クラス */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        /* カードの浮遊感とホバー時の反応 */
         .experiment-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .experiment-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 20px 30px -10px rgba(124, 58, 237, 0.15);
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-gray-800 min-h-screen">
 
     <div class="max-w-4xl mx-auto px-6 py-12">
         <!-- ヘッダー -->
-        <header class="text-center mb-12">
-            <h1 class="text-3xl md:text-4xl font-bold text-[#D47FAC] drop-shadow-sm mb-4">
+        <header class="text-center mb-16">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-500 mb-6 tracking-tight drop-shadow-sm">
                 尚絅学院大学 田村りん の心理学実験室
             </h1>
-            <div class="bg-white/50 p-6 rounded-2xl shadow-sm inline-block max-w-2xl">
-                <p class="text-lg text-gray-700 leading-relaxed">
+            <div class="glass-panel px-8 py-6 rounded-3xl shadow-sm inline-block max-w-2xl">
+                <p class="text-base md:text-lg text-gray-700 leading-relaxed font-medium">
                     ご訪問ありがとうございます。以下の実験へのご協力をお願いいたします。<br>
                     各実験は数分で終わります。スマートフォンからも参加可能です。
                 </p>
@@ -39,58 +50,56 @@
         <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             <!-- 実験0 -->
-            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
+            <article class="glass-panel p-6 rounded-3xl shadow-sm experiment-card flex flex-col justify-between">
                 <div>
-                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験0：はじめてのWebページ</h2>
-                    <p class="text-gray-600 mb-6">第2回で作成した記念すべき「Hello World」のページです。</p>
+                    <h2 class="text-lg font-bold mb-3 text-indigo-500 tracking-tight">実験0：はじめてのWebページ</h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-6">第2回で作成した記念すべき「Hello World」のページです。</p>
                 </div>
-                <a href="hello_world.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
+                <a href="hello_world.html" class="block w-full bg-indigo-400/80 hover:bg-indigo-500 text-white text-center font-bold py-3 rounded-2xl transition-all duration-300 shadow-sm">
                     Hello Worldを見る
                 </a>
             </article>
 
             <!-- 実験1 -->
-            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
+            <article class="glass-panel p-6 rounded-3xl shadow-sm experiment-card flex flex-col justify-between">
                 <div>
-                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験1：ストループ課題</h2>
-                    <p class="text-gray-600 mb-6">「文字の意味」と「文字の色」の干渉を調べるテストです。（所要時間：約3分）</p>
+                    <h2 class="text-lg font-bold mb-3 text-indigo-500 tracking-tight">実験1：ストループ課題</h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-6">「文字の意味」と「文字の色」の干渉を調べるテストです。（所要時間：約3分）</p>
                 </div>
-                <a href="stroop.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
+                <a href="stroop.html" class="block w-full bg-indigo-400/80 hover:bg-indigo-500 text-white text-center font-bold py-3 rounded-2xl transition-all duration-300 shadow-sm">
                     実験1に参加する
                 </a>
             </article>
 
             <!-- 実験2 -->
-            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col justify-between">
+            <article class="glass-panel p-6 rounded-3xl shadow-sm experiment-card flex flex-col justify-between">
                 <div>
-                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験2：ミュラー・リヤー錯視</h2>
-                    <p class="text-gray-600 mb-6">図形の長さが違って見える錯覚を測るテストです。（所要時間：約2分）</p>
+                    <h2 class="text-lg font-bold mb-3 text-indigo-500 tracking-tight">実験2：ミュラー・リヤー錯視</h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-6">図形の長さが違って見える錯覚を測るテストです。（所要時間：約2分）</p>
                 </div>
-                <a href="muller_lyer_final.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition">
+                <a href="muller_lyer_final.html" class="block w-full bg-indigo-400/80 hover:bg-indigo-500 text-white text-center font-bold py-3 rounded-2xl transition-all duration-300 shadow-sm">
                     実験2に参加する
                 </a>
             </article>
 
             <!-- 実験3 -->
-            <article class="bg-white p-6 rounded-2xl shadow-md experiment-card flex flex-col">
-                <div class="mb-6">
-                    <h2 class="text-xl font-bold mb-3 text-[#D47FAC]">実験3：N-back課題</h2>
-                    <p class="text-gray-600 mb-4">ワーキングメモリへの記憶負荷がパフォーマンスに与える影響を測るテストです。（所要時間：約3分）</p>
+            <article class="glass-panel p-6 rounded-3xl shadow-sm experiment-card flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold mb-3 text-indigo-500 tracking-tight">実験3：N-back課題</h2>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-6">ワーキングメモリへの記憶負荷がパフォーマンスに与える影響を測るテストです。（所要時間：約3分）</p>
                 </div>
                 
-                <div class="space-y-3 mt-auto">
-                    <!-- メイン参加ボタン -->
-                    <a href="nback.html" class="block w-full bg-[#D47FAC] hover:bg-[#c26a9a] text-white text-center font-bold py-3 rounded-xl transition shadow-sm">
+                <div class="space-y-3">
+                    <a href="nback.html" class="block w-full bg-indigo-400/80 hover:bg-indigo-500 text-white text-center font-bold py-3 rounded-2xl transition-all duration-300 shadow-sm">
                         実験3に参加する
                     </a>
                     
-                    <!-- プレレジ関連リンク -->
-                    <div class="flex gap-2">
-                        <a href="https://github.com/Rin-tmr/my-experiment/blob/main/preregistration.md" class="flex-1 border-2 border-[#D47FAC] text-[#D47FAC] hover:bg-[#D47FAC] hover:text-white text-center text-xs font-bold py-2 rounded-lg transition">
+                    <div class="flex flex-col gap-2">
+                        <a href="https://github.com/Rin-tmr/my-experiment/blob/main/preregistration.md" target="_blank" rel="noopener noreferrer" class="block w-full border border-indigo-400/40 text-indigo-500 hover:bg-indigo-400/10 text-center text-xs font-bold py-2 rounded-xl transition-all duration-300">
                             プレレジを確認
                         </a>
-                        <a href="https://github.com/Rin-tmr/my-experiment/commits/main/preregistration.md" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-center text-xs font-bold py-2 rounded-lg transition">
-                            変更履歴
+                        <a href="https://github.com/Rin-tmr/my-experiment/commits/main/preregistration.md" target="_blank" rel="noopener noreferrer" class="block w-full bg-black/5 hover:bg-black/10 text-gray-500 hover:text-gray-700 text-center text-xs font-bold py-2 rounded-xl transition-all duration-300">
+                            変更履歴（証拠）を確認
                         </a>
                     </div>
                 </div>
@@ -98,7 +107,7 @@
 
         </main>
 
-        <footer class="text-center mt-16 text-sm text-[#D47FAC]/70">
+        <footer class="text-center mt-20 text-sm text-indigo-400/60 tracking-wider">
             &copy; 2026 Rin Tamura, Shokei Gakuin University.
         </footer>
     </div>
